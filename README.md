@@ -6,9 +6,9 @@ A draggable, pinnable, and resizable window component built with Livewire and Al
 
 ## Overview
 
-**Author:** Dr. Stefan Radolf & the Praxeln team
-**Website:** [https://stage.praxeln.de/magic-window](https://stage.praxeln.de/magic-window)
-**License:** MIT
+Author: Dr. Stefan Radolf & the Praxeln team
+Demo: [https://stage.praxeln.de/magic-window](https://stage.praxeln.de/magic-window)
+License: MIT
 
 // Praxeln is a central online platform for distributed management of clinical placements in nursing education. It connects students, training institutions, and practical training sites and supports placement planning, scheduling, messaging, and more. During the development of the Praxeln platform, many reusable Livewire components were created. Some of them – including this Magic Window – are released here under the MIT License in the hope that they will be useful to others
 
@@ -23,16 +23,16 @@ A draggable, pinnable, and resizable window component built with Livewire and Al
 
 Copy the files to your `resources/views/components/` directory:
 
-`magic-window.blade.php` // the compontent
-`magic-window-honeypots.blade.php` // contains tailwind-classes for vite
-`magic-window-test.blade.php` // basic usage example
+- `magic-window.blade.php` 
+- `magic-window-honeypots.blade.php` // contains tailwind-classes for vite
+- `magic-window-test.blade.php` // basic usage example
 
 Install Icons:
 https://github.com/ryangjchandler/blade-tabler-icons
 
 ## Usage
 
-Include the component in your Blade views using the <x-magic-window> tag. 
+Include the component in your Blade views using the ```<x-magic-window>``` tag. 
 Provide a unique `window-id` for each instance.
 
 ### Basic Example
@@ -100,9 +100,9 @@ Provide a unique `window-id` for each instance.
 
 ## Modes
 
-- **window**: Draggable and resizable within parent.
-- **window-pinned**: Fixed overlay on viewport.
-- **window-anchored**: Docked/static in flow.
+- window: Draggable and resizable within parent.
+- window-pinned: Fixed overlay on viewport.
+- window-anchored: Docked/static in flow.
 - 
 
 ### Full List of Blade-Properties / Livewire-Properties
@@ -130,7 +130,7 @@ Provide a unique `window-id` for each instance.
 | basecolor                      | string   | `'zinc'`                                                                                                                  | Base color basename for Tailwind (e.g., `'zinc'` for `bg-zinc-500`).                                                            |
 | accentcolor                    | string   | `'pink'`                                                                                                                  | Accent color basename for Tailwind.                                                                                             |
 
-### Note on Colors
+### Note on Colors:
 Provide Tailwind color basenames (e.g., 'zinc', 'amber'). The component injects them into layout classes for proper contrast. Use the same base and accent for subtle effects. Include honeypots in your bundler config to pick up all classes.
 
 ### Dispatch events to controll the component
@@ -138,35 +138,35 @@ Provide Tailwind color basenames (e.g., 'zinc', 'amber'). The component injects 
 Replace {suffix} with the slugified windowId, e.g. win1.
 
 // Open / Close / Toggle
-window.dispatchEvent(new Event('magic-window-open-{suffix}'))
-window.dispatchEvent(new Event('magic-window-close-{suffix}'))
-window.dispatchEvent(new Event('magic-window-toggle-{suffix}'))
+- ```window.dispatchEvent(new Event('magic-window-open-{suffix}'))```
+- ```window.dispatchEvent(new Event('magic-window-close-{suffix}'))```
+- ``window.dispatchEvent(new Event('magic-window-toggle-{suffix}'))```
 
 // Titlebar visibility
-window.dispatchEvent(new Event('magic-window-titlebar-show-{suffix}'))
-window.dispatchEvent(new Event('magic-window-titlebar-hide-{suffix}'))
+- ```window.dispatchEvent(new Event('magic-window-titlebar-show-{suffix}'))```
+- ```window.dispatchEvent(new Event('magic-window-titlebar-hide-{suffix}'))```
 
 // Global reset for all Magic Windows
-window.dispatchEvent(new Event('magic-window-local-storage-clear'))
+- ```window.dispatchEvent(new Event('magic-window-local-storage-clear'))```
 
 ## Persistence
 
 When `persist` is true, position, size, mode, and resize history are saved in LocalStorage under:
 
-`praxeln.magic-window.{key}`
+- ```praxeln.magic-window.{key}```
 
-`{key}` is derived from the component’s `windowId`.
+-```{key}``` is derived from the component’s ```windowId```.
 
 ## Styling
 
-The component uses Tailwind classes extensively and supports dark mode in many defaults. Customize via props like `layoutWindowBody`, `layoutWindowTitleBar`, `layoutWindowBorder`, etc.
+The component uses Tailwind classes extensively and supports dark mode in many defaults. Customize via props like ```layoutWindowBody```, ```layoutWindowTitleBar```, ```layoutWindowBorder```, etc.
 
 ## Advanced Features
 
-- **Snapping**: Windows snap to edges when within `snapThreshold`.
-- **Resizing**: 8-way resizing in `window` mode.
-- **Z-Index Management**: Global counter to bring windows to front.
-- **Keyboard**: `Esc` closes the window
-- **Reset**: Optional button or method to reset to defaults.
+- Snapping: Windows snap to edges when within `snapThreshold`.
+- Resizing: 8-way resizing in `window` mode.
+- Z-Index Management: Global counter to bring windows to front.
+- Keyboard: `Esc` closes the window
+- Reset: Optional button or method to reset to defaults.
 
 
