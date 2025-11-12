@@ -7,7 +7,7 @@ A draggable, pinnable, and resizable window component built with Livewire and Al
 ## Overview
 
 - Author: Dr. Stefan Radolf & the Praxeln team
-- Demo: [https://stage.praxeln.de/magic-window](https://stage.praxeln.de/magic-window)
+- Demo: [https://stage.praxeln.de/magic-windows](https://stage.praxeln.de/magic-windows)
 - License: MIT
 
 // About: Praxeln is a central online platform for distributed management of clinical placements in nursing education. It connects students, training institutions, and practical training sites and supports placement planning, scheduling, messaging, and more. During the development of the Praxeln platform, many reusable Livewire components were created. Some of them – including this Magic Window – are released here under the MIT License in the hope that they will be useful to others
