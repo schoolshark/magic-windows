@@ -38,6 +38,9 @@ Provide a unique `window-id` for each instance.
 ### Basic Example
 
 ```blade
+{{--  id, not needed but better: fixed hight ( --}}
+<div id="my-container" wire:ignore.self class="w-full h-[1080px] overflow-y-hidden">
+
       <x-magic-window
 
             {{-- Ensure unique window-id! ...--}}
@@ -74,7 +77,10 @@ Provide a unique `window-id` for each instance.
                     <li>This window can be moved over the horizontal borders // :clamp-x="false"</li>
                 </ul>
             </div>
+
         </x-magic-window>
+
+</div>
 ```
 
 ### Slots
@@ -82,7 +88,10 @@ Provide a unique `window-id` for each instance.
 - **Titlebar Content**: If you need custom content in the title bar, pass it via a named slot:
 
 ```blade
+<div id="my-container" wire:ignore.self class="w-full h-[1080px] overflow-y-hidden">
+
       <x-magic-window
+
             window-id="win2"
             title="{{__('My second magic window')}}"
 
@@ -99,9 +108,11 @@ Provide a unique `window-id` for each instance.
                   </div>
 
         </x-magic-window>
+
+</div>
 ```
 
-## Modes
+### Modes
 
 {{--  The initial working-mode --}}
 workingMode = window | window-pinned | window-anchored
@@ -110,7 +121,7 @@ workingMode = window | window-pinned | window-anchored
 - "window-pinned" // Fixed overlay on viewport.
 - "window-anchored"  // Docked/static in flow.
 
-### Full List of Blade-Properties / Livewire-Properties
+## Full List of Blade-Properties / Livewire-Properties
 
 | Prop                           | Type     | Default                                                                                                                   | Description                                                                                                                     |
 |--------------------------------|----------|---------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
@@ -138,7 +149,7 @@ workingMode = window | window-pinned | window-anchored
 ### Note on Colors:
 Provide Tailwind color basenames (e.g., 'zinc', 'amber'). The component injects them into layout classes for proper contrast. Use the same base and accent for subtle effects. Include honeypots in your bundler config to pick up all classes.
 
-### Dispatch events to controll the component
+## Dispatch events to controll the component
 
 Replace {suffix} with the slugified windowId, e.g. win1.
 
@@ -156,7 +167,7 @@ Replace {suffix} with the slugified windowId, e.g. win1.
 
 You can combine a workingMode with events to simulate two more workingModes:
 - modal: window + Event magic-window-titlebar-hide // modal with your content:
-- div: window-anchored + Event magic-window-titlebar-hide // regular <div>, inlined with your content:
+- div: window-anchored + Event magic-window-titlebar-hide // like a regular ```<div>Content</div>```, inlined within your container(s):
 
 ## Persistence
 
@@ -174,7 +185,7 @@ The component uses Tailwind classes extensively and supports dark mode in many d
 
 - magic-window-honeypots.blade.php contains full set of all needed tailwind-classes to allow all of the 22 Tailwind Color-Families.
 
-## Advanced Features mentioned...
+## Advanced Features ...
 
 - Z-Index Management: Global counter to bring windows to front.
 - Snapping: Windows snap to edges when within `snapThreshold`.
