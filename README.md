@@ -25,10 +25,13 @@ Copy the files to your `resources/views/components/` directory:
 
 - `magic-window.blade.php` 
 - `magic-window-honeypots.blade.php` // contains tailwind-classes for vite
-- `magic-window-test.blade.php` // basic usage example
 
 Install Icons:
 https://github.com/ryangjchandler/blade-tabler-icons
+
+Optional you can use this test-blade. Just include it inside a livewire component (containing alpine > Ver. 3.1),
+or in a standard blade-component (with alpine > Ver. 3.1 istalled)
+- `magic-window-test.blade.php` // two windows an some buttons to play with ...
 
 ## Usage
 
