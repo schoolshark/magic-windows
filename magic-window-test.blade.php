@@ -1,4 +1,5 @@
 {{--magic-window-test.blade.php--}}
+{{--visit Demo at https://stage.praxeln.de/magic-windows --}}
 
 <div class="bg-zinc-50 dark:bg-zinc-600/90 text-zinc-950 dark:text-zinc-50">
 
