@@ -85,24 +85,27 @@ Provide a unique `window-id` for each instance.
       <x-magic-window
             window-id="win2"
             title="{{__('My second magic window')}}"
-             <x-slot:titlebarContent>
-                <div class="bg-white text-black px-2 italic rounded">custom title</div>
-            </x-slot:titlebarContent>
-            {{--  give your Content "w-full h-fit  --}}
-            <div class="w-full h-fit flex flex-col items-center justify-center p-2 bg-white text-black">
-                <ul>
-                    <li>You can toggle this with the buttons by event</li>
-                    <li>This window can not be moved outside // :clamp-x="true"</li>
-                </ul>
-            </div>
+
+                  <x-slot:titlebarContent>
+                            <div class="bg-white text-black px-2 italic rounded">custom title</div>
+                  </x-slot:titlebarContent>
+
+                  {{--  This is the Content-Slot | give your Content "w-full h-fit  --}}
+                  <div class="w-full h-fit flex flex-col items-center justify-center p-2 bg-white text-black">
+                      <ul>
+                          <li>You can toggle this with the buttons by event</li>
+                          <li>This window can not be moved outside // :clamp-x="true"</li>
+                      </ul>
+                  </div>
+
         </x-magic-window>
 ```
 
 ## Modes
 
-- window: Draggable and resizable within parent.
-- window-pinned: Fixed overlay on viewport.
-- window-anchored: Docked/static in flow.
+- ```"window"`` // Draggable and resizable within parent.
+- ```"window-pinned"``` // Fixed overlay on viewport.
+- ```"window-anchored"``` // Docked/static in flow.
 - 
 
 ### Full List of Blade-Properties / Livewire-Properties
