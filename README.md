@@ -103,10 +103,12 @@ Provide a unique `window-id` for each instance.
 
 ## Modes
 
-- ```"window"`` // Draggable and resizable within parent.
-- ```"window-pinned"``` // Fixed overlay on viewport.
-- ```"window-anchored"``` // Docked/static in flow.
-- 
+{{--  The initial working-mode --}}
+workingMode = window | window-pinned | window-anchored
+
+- "window"  // Draggable and resizable within parent.
+- "window-pinned" // Fixed overlay on viewport.
+- "window-anchored"  // Docked/static in flow.
 
 ### Full List of Blade-Properties / Livewire-Properties
 
@@ -143,7 +145,7 @@ Replace {suffix} with the slugified windowId, e.g. win1.
 // Open / Close / Toggle
 - ```window.dispatchEvent(new Event('magic-window-open-{suffix}'))```
 - ```window.dispatchEvent(new Event('magic-window-close-{suffix}'))```
-- ``window.dispatchEvent(new Event('magic-window-toggle-{suffix}'))```
+- ```window.dispatchEvent(new Event('magic-window-toggle-{suffix}'))```
 
 // Titlebar visibility
 - ```window.dispatchEvent(new Event('magic-window-titlebar-show-{suffix}'))```
@@ -152,24 +154,30 @@ Replace {suffix} with the slugified windowId, e.g. win1.
 // Global reset for all Magic Windows
 - ```window.dispatchEvent(new Event('magic-window-local-storage-clear'))```
 
+You can combine a workingMode with events to simulate two more workingModes:
+- modal: window + Event magic-window-titlebar-hide // modal with your content:
+- div: window-anchored + Event magic-window-titlebar-hide // regular <div>, inlined with your content:
+
 ## Persistence
 
 When `persist` is true, position, size, mode, and resize history are saved in LocalStorage under:
 
 - ```praxeln.magic-window.{key}```
 
--```{key}``` is derived from the component’s ```windowId```.
+-```{key}``` is derived from the component’s ```windowId```
+
+- Dispatch 'magic-window-local-storage-clear' to reset persisted windows
 
 ## Styling
 
 The component uses Tailwind classes extensively and supports dark mode in many defaults. Customize via props like ```layoutWindowBody```, ```layoutWindowTitleBar```, ```layoutWindowBorder```, etc.
 
-## Advanced Features
+- magic-window-honeypots.blade.php contains full set of all needed tailwind-classes to allow all of the 22 Tailwind Color-Families.
 
-- Snapping: Windows snap to edges when within `snapThreshold`.
-- Resizing: 8-way resizing in `window` mode.
+## Advanced Features mentioned...
+
 - Z-Index Management: Global counter to bring windows to front.
-- Keyboard: `Esc` closes the window
-- Reset: Optional button or method to reset to defaults.
-
-
+- Snapping: Windows snap to edges when within `snapThreshold`.
+- Resizing: smart resizing in `window` mode.
+- Keyboard: `Esc` closes the window // this should be disabled in Forms to prevent incidently closed windows....
+  
