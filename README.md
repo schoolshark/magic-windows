@@ -71,7 +71,7 @@ Provide a unique `window-id` for each instance.
             :clamp-x="false"
         >
 
-            {{--  give your Content "w-full h-fit  --}}
+            {{--  give your Content "w-full h-fit"  --}}
             <div class="w-full h-fit flex flex-col items-start">
                 <ul class="list-disc pl-5">
                     <li>You can put whole Views into this space</li>
@@ -102,7 +102,7 @@ Provide a unique `window-id` for each instance.
                             <div class="bg-white text-black px-2 italic rounded">custom title</div>
                   </x-slot:titlebarContent>
 
-                  {{--  This is the Content-Slot | give your Content "w-full h-fit  --}}
+                  {{--  This is the Content-Slot | give your Content "w-full h-fit"  --}}
                   <div class="w-full h-fit flex flex-col items-center justify-center p-2 bg-white text-black">
                       <ul>
                           <li>You can toggle this with the buttons by event</li>
