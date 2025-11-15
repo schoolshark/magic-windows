@@ -1,10 +1,12 @@
 {{--
 
-    Magic Window – draggable, pinnable Livewire/Alpine window component.
+    Version 1.1.2
+    Magic Window – draggable, pinnable persistable Livewire/Alpine window component.
+    Made as a monolithic single file Component to allow quick an painless integration.
     resources/views/component/magic-window.blade.php
 
     Author:   Dr. Stefan Radolf & the Praxeln team
-    Website:  https://stage.praxeln.de/mit/magic-window
+    Website:  https://github.com/schoolshark/magic-windows
     License:  MIT
 
     Praxeln is a central online platform for distributed management of
@@ -35,6 +37,12 @@
 
     /* Automatically store/load last position and size */
     'persist' => false,
+
+    /* Optionally persist the open/closed state as well */
+    'persistOpenState' => false,
+
+    /* Persist inline height (after vertical resize) across reloads? */
+    'persistHeight' => false,
 
     /* Throttle time in ms before a new save */
     'saveThrottleMs' => 200,
@@ -177,6 +185,8 @@
         snapT: @js($snapThreshold),
 
         persist: @js($persist),
+        persistOpenState: @js($persistOpenState),
+        persistHeight: @js($persistHeight),
         storageKeyBase: 'praxeln.magic-window.{{ $key }}',
         saveThrottleMs: @js($saveThrottleMs),
         _t_lastSave: 0,
@@ -185,6 +195,12 @@
         mwTitleId: 'mw-title-{{ $key }}',
         margin: @js((int)$viewportMargin),
         clampX: @js($clampX),
+
+        // Defaults for reboot
+        initLeft: @js($initLeft),
+        initTop: @js($initTop),
+        defaultWorkingMode: @js($workingMode),
+        initialOpenState: @js($initialOpen),
 
         // ---------------------------
         // Mode + visibility
@@ -234,6 +250,7 @@
         init(){
             // Global listener: clear all Magic Window LocalStorage keys and alert once.
             if (!window.__magicWindowGlobalClearListener) {
+
                 const handler = () => {
                     try {
                         const del = [];
@@ -245,6 +262,7 @@
                     } catch(_) {}
                     try { alert('{{$localStorageNotice}}'); } catch(_) {}
                 };
+
                 window.addEventListener('magic-window-local-storage-clear', handler, { passive: true });
                 window.addEventListener('recke-reset-windows',              handler, { passive: true });
                 window.__magicWindowGlobalClearListener = handler;
@@ -263,10 +281,10 @@
             this._updateMax();
 
             // Initial position
-            this.cx = this._px(@js($initLeft), 'x');
-            this.cy = Math.max(0, this._px(@js($initTop), 'y'));
+            this.cx = this._px(this.initLeft, 'x');
+            this.cy = Math.max(0, this._px(this.initTop, 'y'));
 
-            // Load state, but do not restore 'open'
+            // Load state
             this._load();
 
             // If initially pinned, derive viewport coordinates from current rect
@@ -283,7 +301,10 @@
             });
 
             // Auto focus whenever the window opens
-            this.$watch('open', (v) => { if (v) { this.bringToFront(); this._keepInBounds(); this.focusFrame(); } });
+            this.$watch('open', (v) => {
+                if (v) { this.bringToFront(); this._keepInBounds(); this.focusFrame(); }
+                if (this.persist && this.persistOpenState) this._save();
+            });
         },
 
         // ---------------------------
@@ -371,10 +392,14 @@
         _load(){
             const s = this._loadRaw();
 
-            // 'open' is NOT restored; initialOpen controls start visibility.
-            this.open = @js($initialOpen);
+            // 'open' can optionally be restored, otherwise initialOpen controls start visibility.
+            if (this.persist && this.persistOpenState && typeof s.open === 'boolean') {
+                this.open = !!s.open;
+            } else {
+                this.open = this.initialOpenState;
+            }
 
-            if (s.meta && typeof s.meta === 'object') {
+            if (s.meta && typeof s.meta === 'object' && this.persistHeight) {
                 this.hasVerticalResize = !!s.meta.hasVerticalResize;
             } else {
                 this.hasVerticalResize = false;
@@ -394,13 +419,13 @@
                 if (Number.isFinite(s.pinned.vy)) this.vy = Math.max(0, s.pinned.vy);
             }
 
-            // Size: width always, height only if there was a vertical resize
+            // Size: width always, height only if there was a vertical resize and we persist it
             const src = this.isPinnedLike() ? s.pinned : s.free;
             this.useInlineSize = !!src?.useInlineSize;
 
             if (this.useInlineSize) {
                 this.w = Number.isFinite(src?.w) ? src.w : null;
-                this.h = (this.hasVerticalResize && Number.isFinite(src?.h)) ? src.h : null;
+                this.h = (this.persistHeight && this.hasVerticalResize && Number.isFinite(src?.h)) ? src.h : null;
             } else {
                 this.w = null;
                 this.h = null;
@@ -408,17 +433,31 @@
         },
 
         // Raw save without throttling
-        _saveRaw(o){ if(!this.persist) return; try{ localStorage.setItem(this.storageKey(), JSON.stringify(o)) }catch(_){} },
+        _saveRaw(o){
+            if (!this.persist) return;
+            // legacy guard: external code can disable saving by setting this flag
+            if (window.__magicWindowStorageKilled) return;
+            try { localStorage.setItem(this.storageKey(), JSON.stringify(o)) } catch(_){}
+        },
 
         __doSave(){
             if (!this.persist) return;
             const s = this._loadRaw();
 
-            s.workingMode = this.workingMode;
-            s.meta = s.meta || {};
-            s.meta.hasVerticalResize = !!this.hasVerticalResize;
+            if (this.persistOpenState) {
+                s.open = !!this.open;
+            }
 
-            const hToStore = this.hasVerticalResize && this.useInlineSize ? this.h : null;
+            s.workingMode = this.workingMode;
+
+            if (this.persistHeight) {
+                s.meta = s.meta || {};
+                s.meta.hasVerticalResize = !!this.hasVerticalResize;
+            } else if (s.meta && 'hasVerticalResize' in s.meta) {
+                delete s.meta.hasVerticalResize;
+            }
+
+            const hToStore = (this.persistHeight && this.hasVerticalResize && this.useInlineSize) ? this.h : null;
 
             // Window mode state
             s.free = {
@@ -714,7 +753,148 @@
         },
 
         // ---------------------------
-        // Reset to defaults
+        // Alignment helpers
+        // ---------------------------
+        alignLeft(){
+            if (!this.open) return;
+            if (!this.isFree()) this.setMode('window');
+            this._syncOffsetParent();
+            this._updateParentRect();
+            this._updateMax();
+
+            const minX = this.clampX ? this.margin : 0;
+            this.cx = minX;
+
+            this._keepInBounds();
+            this.bringToFront();
+            this._save();
+        },
+        alignRight(){
+            if (!this.open) return;
+            if (!this.isFree()) this.setMode('window');
+            this._syncOffsetParent();
+            this._updateParentRect();
+            this._updateMax();
+            const { w } = this._getFrameSize();
+
+            const W = this.parentRect?.width || window.innerWidth;
+            const maxX = this.clampX
+                ? Math.max(this.margin, W - this.margin - w)
+                : (W - w);
+            this.cx = maxX;
+
+            this._keepInBounds();
+            this.bringToFront();
+            this._save();
+        },
+        alignXCenter(){
+            if (!this.open) return;
+            if (!this.isFree()) this.setMode('window');
+            this._syncOffsetParent();
+            this._updateParentRect();
+            this._updateMax();
+            const { w } = this._getFrameSize();
+
+            const W = this.parentRect?.width || window.innerWidth;
+            let x = (W - w) / 2;
+            if (this.clampX) {
+                const minX = this.margin;
+                const maxX = Math.max(this.margin, W - this.margin - w);
+                x = Math.min(Math.max(x, minX), maxX);
+            }
+            this.cx = x;
+
+            this._keepInBounds();
+            this.bringToFront();
+            this._save();
+        },
+        alignTop(){
+            if (!this.open) return;
+            if (!this.isFree()) this.setMode('window');
+            this._syncOffsetParent();
+            this._updateParentRect();
+            this._updateMax();
+
+            this.cy = 0;
+
+            this._keepInBounds();
+            this.bringToFront();
+            this._save();
+        },
+        alignBottom(){
+            if (!this.open) return;
+            if (!this.isFree()) this.setMode('window');
+            this._syncOffsetParent();
+            this._updateParentRect();
+            this._updateMax();
+            const { h } = this._getFrameSize();
+
+            // Window-Mode: an unteren Rand des sichtbaren Bereichs ausrichten
+            const pr = this.parentRect;
+            const parentTop    = pr?.top ?? 0;                     // relativ zum Viewport
+            const parentHeight = pr?.height ?? window.innerHeight;
+            const parentBottom = parentTop + parentHeight;
+            const viewportBottom = window.innerHeight;
+
+            // Untere Grenze = min(Parent-Bottom, Viewport-Bottom)
+            const targetBottom = Math.min(parentBottom, viewportBottom);
+
+            // in lokale Koordinaten des Parents umrechnen
+            const localTop = targetBottom - h - parentTop;
+            this.cy = localTop;
+
+            this._keepInBounds();
+            this.bringToFront();
+            this._save();
+        },
+        alignYCenter(){
+            if (!this.open) return;
+            if (!this.isFree()) this.setMode('window');
+            this._syncOffsetParent();
+            this._updateParentRect();
+            this._updateMax();
+            const { h } = this._getFrameSize();
+
+            const H = this.parentRect?.height || window.innerHeight;
+            const minY = 0;
+            const maxY = Math.max(this.margin, H - this.margin - h);
+            let y = (H - h) / 2;
+            y = Math.min(Math.max(y, minY), maxY);
+            this.cy = y;
+
+            this._keepInBounds();
+            this.bringToFront();
+            this._save();
+        },
+        setWidthPercent(width){
+            if (!this.open) return;
+            if (!this.isFree()) this.setMode('window');
+
+            const pct = Number(width);
+            if (!Number.isFinite(pct) || pct <= 0) return;
+
+            this._syncOffsetParent();
+            this._updateParentRect();
+            this._updateMax();
+
+            const baseW = this.parentRect?.width || window.innerWidth;
+
+            let newW = Math.round(baseW * Math.min(pct, 100) / 100);
+
+            // minimale/maximale Breite respektieren
+            newW = Math.min(Math.max(120, newW), this.maxW);
+
+            this.useInlineSize = true;
+            this.w = newW;
+
+            this._applyMax();
+            this._keepInBounds();
+            this.bringToFront();
+            this._save();
+        },
+
+        // ---------------------------
+        // Reset / Reboot
         // ---------------------------
         resetToDefaultWindow(){
             // Drop all persisted state for this window
@@ -730,14 +910,55 @@
             this._updateParentRect();
             this._updateMax();
 
-            this.cx = this._px(@js($initLeft), 'x');
-            this.cy = Math.max(0, this._px(@js($initTop), 'y'));
+            this.cx = this._px(this.initLeft, 'x');
+            this.cy = Math.max(0, this._px(this.initTop, 'y'));
 
             this._applyMax();
             this._keepInBounds();
             this.bringToFront();
             this.focusFrame();
             this._save();
+        },
+
+        reboot(){
+            // optional: re-enable saving if some previous code disabled it
+            if (window.__magicWindowStorageKilled) {
+                window.__magicWindowStorageKilled = false;
+            }
+
+            this._syncOffsetParent();
+            this._updateParentRect();
+            this._updateMax();
+
+            // Baseline defaults
+            this.workingMode = this.defaultWorkingMode;
+            this.open        = this.initialOpenState;
+            this.useInlineSize = false;
+            this.w = null;
+            this.h = null;
+            this.hasVerticalResize = false;
+
+            this.cx = this._px(this.initLeft, 'x');
+            this.cy = Math.max(0, this._px(this.initTop, 'y'));
+            this.vx = 0;
+            this.vy = 0;
+
+            // Reload persisted state – falls vorhanden
+            this._load();
+
+            if (this.isPinnedLike()) {
+                this._ensureViewportCoordsFromCurrentRect();
+            }
+
+            this.$nextTick(() => {
+                this._updateMax();
+                this._applyMax();
+                this._keepInBounds();
+                if (this.open) {
+                    this.bringToFront();
+                    this.focusFrame();
+                }
+            });
         },
 
         // ---------------------------
@@ -786,17 +1007,15 @@
                 return s;
             };
 
-            if (this.isPinnedLike()){
-                let s = `${disp}position:fixed; max-width:${this.maxW}px; max-height:${this.maxH}px; z-index:${this.z};`;
-                s += ` left:${Math.round(this.vx)}px; top:${Math.round(this.vy)}px;`;
-                s += sizePart();
-                return s;
-            } else {
-                let s = `${disp}position:absolute; max-width:${this.maxW}px; max-height:${this.maxH}px; z-index:${this.z};`;
-                s += ` left:${Math.round(this.cx)}px; top:${Math.round(this.cy)}px;`;
-                s += sizePart();
-                return s;
-            }
+            let s = `${disp}max-width:${this.maxW}px; max-height:${this.maxH}px; z-index:${this.z};`;
+
+            s += this.isPinnedLike()
+                ? 'position:fixed;'
+                : 'position:absolute;';
+
+            s += ` left:${Math.round(this.isPinnedLike() ? this.vx : this.cx)}px; top:${Math.round(this.isPinnedLike() ? this.vy : this.cy)}px;`;
+            s += sizePart();
+            return s;
         },
 
         // ---------------------------
@@ -831,6 +1050,9 @@
                 window.removeEventListener('beforeunload', __mwFlush);
                 window.removeEventListener('pagehide',     __mwFlush, { passive: true });
 
+                // Persist final state on destroy
+                __mwFlush();
+
                 // Optionally drop the global reset listener if no window remains
                 if (window.__magicWindowGlobalClearListener) {
                     window.__magicWindowGlobalRefCount = (window.__magicWindowGlobalRefCount || 1) - 1;
@@ -853,9 +1075,29 @@
     @orientationchange.window="onResize()"
     @scroll.window.passive="onScroll()"
 
+    {{-- Window visibility events --}}
     @magic-window-open-{{ $eventSuffix }}.window="open = true; bringToFront(); _keepInBounds(); focusFrame(); _save()"
     @magic-window-close-{{ $eventSuffix }}.window="endAction(); open = false; _flushSaveNow()"
     @magic-window-toggle-{{ $eventSuffix }}.window="open = !open; if (open) { bringToFront(); _keepInBounds(); focusFrame(); _save() } else { _flushSaveNow() }"
+
+    {{-- Window alignment events --}}
+    @magic-window-align-left-{{ $eventSuffix }}.window="alignLeft()"
+    @magic-window-align-right-{{ $eventSuffix }}.window="alignRight()"
+    @magic-window-align-x-center-{{ $eventSuffix }}.window="alignXCenter()"
+    @magic-window-align-top-{{ $eventSuffix }}.window="alignTop()"
+    @magic-window-align-bottom-{{ $eventSuffix }}.window="alignBottom()"
+    @magic-window-align-y-center-{{ $eventSuffix }}.window="alignYCenter()"
+
+    {{-- External setting for window width --}}
+    @magic-window-set-width-{{ $eventSuffix }}.window="
+        if ($event.detail && typeof $event.detail.width !== 'undefined') {
+            setWidthPercent($event.detail.width);
+        }
+    "
+
+    {{-- Reboot events (global + gezielt pro Window) --}}
+    @magic-window-reboot.window="reboot()"
+    @magic-window-reboot-{{ $eventSuffix }}.window="reboot()"
 
     {{-- Titlebar visibility events --}}
     @magic-window-titlebar-show-{{ $eventSuffix }}.window="titlebarVisible = true"
@@ -936,7 +1178,7 @@
                             </button>
                         @endif
                         <button type="button" class="{{ $layoutWindowTitleBarButton }} no-drag mr-2"
-                                @pointerdown.stop @click.stop="endAction(); open=false"
+                                @pointerdown.stop @click.stop="endAction(); open=false; _flushSaveNow()"
                                 :title="'{{ __('Close') }}'">
                             {!!$iconPrefixPre!!}{!!$layoutWindowTitleBarButtonIcon!!}{!!$iconPrefixPost!!}{!! $iconSquareX!!}{!!$iconSuffix!!}
                         </button>
@@ -957,7 +1199,7 @@
                             </button>
                         @endif
                         <button type="button" class="{{ $layoutWindowTitleBarButton }} no-drag mr-2"
-                                @pointerdown.stop @click.stop="endAction(); open=false"
+                                @pointerdown.stop @click.stop="endAction(); open=false; _flushSaveNow()"
                                 :title="'{{ __('Close') }}'">
                             {!!$iconPrefixPre!!}{!!$layoutWindowTitleBarButtonIcon!!}{!!$iconPrefixPost!!}{!! $iconSquareX!!}{!!$iconSuffix!!}
                         </button>
