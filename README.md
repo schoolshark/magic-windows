@@ -2,8 +2,11 @@
 
 _multiple windows for Laravel Livewire: draggable, pinnable, resizable, persistable | batteries included :-)_
 
-A draggable, pinnable, and resizable window component built with Livewire and Alpine.js for Laravel applications. This component allows creating floating windows that can be dragged, resized, pinned as overlays, or anchored/docked. It supports persistence of position, size, mode, and (optionally) open-state and height via LocalStorage.  
-Made as a monolithic single file component to allow quick and painless integration.
+- Made as a monolithic single file component to allow quick and painless integration.
+- A draggable, pinnable, and resizable window component built with Livewire and Alpine.js for Laravel applications.
+- This component allows creating floating windows that can be dragged, resized, pinned as overlays, or anchored/docked.
+- It supports persistence of position, size, mode, and (optionally) open-state and height via LocalStorage.
+  
 
 ## Overview
 
