@@ -1,44 +1,113 @@
 {{--magic-window-test.blade.php--}}
-{{--visit Demo at https://stage.praxeln.de/magic-windows --}}
+{{--Ver 1.1.2--}}
+{{-- Visit Demo at https://stage.praxeln.de/magic-windows --}}
 
 <div class="bg-zinc-50 dark:bg-zinc-600/90 text-zinc-950 dark:text-zinc-50">
 
     <div class="text-2xl p-4">Magic Windows | Demo</div>
 
     <a class="p-4 flex flex-row items-center justify-start gap-1" href="https://github.com/schoolshark/magic-windows">
-        <x-tabler-brand-github class="w-6 h-6" /><div>https://github.com/schoolshark/magic-windows</div>
+        <x-tabler-brand-github class="w-6 h-6"/>
+        <div>https://github.com/schoolshark/magic-windows</div>
     </a>
 
-    <div class="w-full flex flex-row items-center gap-1 p-4">
+    <div class="w-full flex flex-wrap items-center gap-1 p-4">
         {{-- Test-Buttons: magic-window will react to external commands--}}
-        <button class="h-8 bg-sky-600/100 hover:bg-sky-600/90 dark:hover:bg-sky-600/90 text-white flex flex-row items-center p-2 rounded"
-                onclick="window.dispatchEvent(new Event('magic-window-toggle-win1'))">
+        <button
+            class="h-8 bg-sky-600/100 hover:bg-sky-600/90 dark:hover:bg-sky-600/90 text-white flex flex-row items-center p-2 rounded"
+            onclick="window.dispatchEvent(new Event('magic-window-toggle-win1'))
+            ">
             Toggle win1
         </button>
-        <button class="h-8 bg-sky-600/100 hover:bg-sky-600/90 dark:hover:bg-sky-600/90 text-white flex flex-row items-center p-2 rounded"
-                onclick="window.dispatchEvent(new Event('magic-window-titlebar-hide-win1'))">
-             win1 title-bar hide
+        <button
+            class="h-8 bg-sky-600/100 hover:bg-sky-600/90 dark:hover:bg-sky-600/90 text-white flex flex-row items-center p-2 rounded"
+            onclick="
+                window.dispatchEvent(new Event('magic-window-open-win1'));
+                window.dispatchEvent(new Event('magic-window-titlebar-hide-win1'))
+                ">
+            win1 title-bar hide
         </button>
-        <button class="h-8 bg-sky-600/100 hover:bg-sky-600/90 dark:hover:bg-sky-600/90 text-white flex flex-row items-center p-2 rounded"
-                onclick="window.dispatchEvent(new Event('magic-window-titlebar-show-win1'))">
+        <button
+            class="h-8 bg-sky-600/100 hover:bg-sky-600/90 dark:hover:bg-sky-600/90 text-white flex flex-row items-center p-2 rounded"
+            onclick="
+                window.dispatchEvent(new Event('magic-window-open-win1'));
+                window.dispatchEvent(new Event('magic-window-titlebar-show-win1'))
+                ">
             win1 title-bar show
         </button>
-        <button class="h-8 bg-pink-600/100 hover:bg-pink-600/90 dark:hover:bg-pink-600/90 text-white flex flex-row items-center p-2 rounded"
-                onclick="window.dispatchEvent(new Event('magic-window-open-win2'))">
+        <button
+            class="h-8 bg-pink-600/100 hover:bg-pink-600/90 dark:hover:bg-pink-600/90 text-white flex flex-row items-center p-2 rounded"
+            onclick="window.dispatchEvent(new Event('magic-window-open-win2'))
+            ">
             Open win2
         </button>
-        <button class="h-8 bg-pink-600/100 hover:bg-pink-600/90 dark:hover:bg-pink-600/90 text-white flex flex-row items-center p-2 rounded"
-                onclick="window.dispatchEvent(new Event('magic-window-close-win2'))">
+        <button
+            class="h-8 bg-pink-600/100 hover:bg-pink-600/90 dark:hover:bg-pink-600/90 text-white flex flex-row items-center p-2 rounded"
+            onclick="window.dispatchEvent(new Event('magic-window-close-win2'))">
             Close win2
         </button>
-        <button class="h-8 bg-zinc-400 hover:bg-lime-600/90 dark:hover:bg-lime-600/90 text-white flex flex-row items-center p-2 rounded"
-                onclick="window.dispatchEvent(new Event('magic-window-local-storage-clear'))">
+        <button
+            class="h-8 bg-zinc-400 hover:bg-lime-600/90 dark:hover:bg-lime-600/90 text-white flex flex-row items-center p-2 rounded"
+            onclick="
+                window.dispatchEvent(new Event('magic-window-local-storage-clear'));
+                window.dispatchEvent(new Event('magic-window-reboot'))
+                ">
             Reset Local-Storage (Pos/Coord)
         </button>
-        <button class="h-8 w-10 bg-zinc-400 hover:bg-lime-600/90 dark:hover:bg-lime-600/90 text-white flex flex-row items-center p-2 rounded"
+    </div>
+
+    <div class="w-full flex flex-wrap items-center gap-1 p-4">
+        <button
+            class="h-8 bg-amber-600 hover:bg-lime-600/90 dark:hover:bg-lime-600/90 text-white flex flex-row items-center p-2 rounded"
+            onclick="
+                    window.dispatchEvent(new Event('magic-window-close-win2'))
+                    window.dispatchEvent(new CustomEvent('magic-window-set-width-win1', { detail: { width: 50 } }));
+                    window.dispatchEvent(new Event('magic-window-align-top-win1'));
+                    window.dispatchEvent(new Event('magic-window-align-x-center-win1'));
+                    window.dispatchEvent(new Event('magic-window-open-win1'))
+                    ">
+            set win1 to top/center/50%
+        </button>
+
+        <button
+            class="h-8 bg-amber-600 hover:bg-lime-600/90 dark:hover:bg-lime-600/90 text-white flex flex-row items-center p-2 rounded"
+            onclick="
+                    window.dispatchEvent(new Event('magic-window-open-win1'));
+                    window.dispatchEvent(new CustomEvent('magic-window-set-width-win1', { detail: { width: 25 } }));
+                    window.dispatchEvent(new Event('magic-window-align-top-win1'));
+                    window.dispatchEvent(new Event('magic-window-align-right-win1'));
+
+                    window.dispatchEvent(new Event('magic-window-open-win2'));
+                    window.dispatchEvent(new CustomEvent('magic-window-set-width-win2', { detail: { width: 75 } }));
+                    window.dispatchEvent(new Event('magic-window-align-top-win2'));
+                    window.dispatchEvent(new Event('magic-window-align-left-win2'));
+                    ">
+            arrange both-windows
+        </button>
+
+        <button
+            class="h-8 bg-amber-600 hover:bg-lime-600/90 dark:hover:bg-lime-600/90 text-white flex flex-row items-center p-2 rounded"
+            onclick="
+                    window.dispatchEvent(new Event('magic-window-open-win2'));
+                    window.dispatchEvent(new CustomEvent('magic-window-set-width-win2', { detail: { width: 25 } }));
+                    window.dispatchEvent(new Event('magic-window-align-top-win2'));
+                    window.dispatchEvent(new Event('magic-window-align-right-win2'));
+
+                    window.dispatchEvent(new Event('magic-window-open-win1'));
+                    window.dispatchEvent(new CustomEvent('magic-window-set-width-win1', { detail: { width: 75 } }));
+                    window.dispatchEvent(new Event('magic-window-align-top-win1'));
+                    window.dispatchEvent(new Event('magic-window-align-left-win1'));
+                "
+        >
+            arrange both-windows ...
+        </button>
+
+
+        <button
+            class="h-8 w-10 bg-zinc-400 hover:bg-lime-600/90 dark:hover:bg-lime-600/90 text-white flex flex-row items-center p-2 rounded"
             x-data="{d:document.children[0].classList.contains('dark'),dk:'{{ Storage::url('images/mode-dark-transparent.svg') }}',lt:'{{ Storage::url('images/mode-light-transparent.svg') }}'}"
             @click="d=!d;document.children[0].classList.toggle('dark');$refs.i.src=d?dk:lt;Livewire.dispatch('toggleDarkMode');return false">
-            <img x-ref="i" class="iconsize paragraphs praxelnShadow" :src="d?dk:lt" alt="" >
+            <img x-ref="i" class="w-8 h-8" :src="d?dk:lt" alt="">
         </Button>
     </div>
 
@@ -58,7 +127,10 @@
             icon-name="tabler-world"
 
             :initial-open="true"
-            default-wide="w-full md:w-1/4"
+            :persist="true"
+
+
+            default-wide="w-3/4 md:w-1/4"
 
             {{-- Select a tailwind color-family: slate, gray, pink ...
              Here: basecolor == accentcolor ---> no accent color --}}
@@ -73,7 +145,7 @@
             :clamp-x="false"
         >
 
-            {{--  The content | Give it allways "w-full h-fit"  --}}
+            {{--  The content | Give it allways "w-full h-fit  --}}
             <div class="w-full h-fit flex flex-col items-start">
                 <ul class="list-disc pl-5">
                     <li>You can put whole Views into this space</li>
@@ -88,10 +160,12 @@
 
             window-id="win2"
             title="{{__('Test2')}}"
-            icon-name="tabler-world"
+            {{--icon-name="tabler-world"--}}
 
             :initial-open="false"
-            default-wide="w-full md:w-1/4"
+            :persist="true"
+
+            default-wide="w-3/4 md:w-1/4"
             default-height="max-h-min"
             working-mode="window"
 
@@ -105,7 +179,7 @@
                 <div class="bg-white text-black px-2 italic rounded">custom...</div>
             </x-slot:titlebarContent>
 
-            {{--  The content | Give it allways "w-full h-fit"  --}}
+            {{--  The content | Give it allways "w-full h-fit  --}}
             <div class="w-full h-fit flex flex-col items-center justify-center p-2 bg-white text-black">
                 <ul>
                     <li>You can toggle this with the buttons by event</li>
@@ -119,7 +193,7 @@
     {{-- If you use Vite: Use this honeypot to ensure
         that Vite includes your tailwind-classes.
         Activate / comment only the colors you need --}}
-   @include('components.magic-window-honeypots')
+    @include('components.magic-window-honeypots')
 
 </div>
 
